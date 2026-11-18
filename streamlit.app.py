@@ -8,9 +8,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# Desain aplikasi
 st.markdown("""
 <style>
-.main {
+.stApp {
     background-color: #f5f7fb;
 }
 [data-testid="stSidebar"] {
@@ -20,24 +21,26 @@ st.markdown("""
     color: white;
 }
 .stButton button {
-    border-radius: 9px;
+    border-radius: 8px;
     width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
 
+# Penyimpanan nilai sementara
 if "nilai" not in st.session_state:
     st.session_state.nilai = []
 
-st.sidebar.title("⚛️ LMS FISIKA")
-st.sidebar.caption("Learning Management System")
+# Sidebar
+st.sidebar.title("⚛️ ASAS KONTINUIAS LMS")
+st.sidebar.write("Learning Management System")
 
 menu = st.sidebar.radio(
-    "MENU PEMBELAJARAN",
+    "MENU UTAMA",
     [
         "Beranda",
         "Materi",
-        "Video",
+        "Video Pembelajaran",
         "Latihan Soal",
         "Tugas",
         "Nilai",
@@ -45,21 +48,24 @@ menu = st.sidebar.radio(
     ]
 )
 
+# BERANDA
 if menu == "Beranda":
-    st.title("Dashboard LMS Fisika")
+    st.title("Dashboard ASAS KONTINUITAS LMS")
     st.write("Selamat datang di platform pembelajaran fisika.")
 
-    a, b, c = st.columns(3)
-    a.metric("Materi", "5")
-    b.metric("Latihan", "1")
-    c.metric("Tugas", "0")
+    kolom1, kolom2, kolom3 = st.columns(3)
+
+    kolom1.metric("Materi", "5")
+    kolom2.metric("Latihan Soal", "3")
+    kolom3.metric("Tugas", "0")
 
     st.subheader("Selamat Belajar!")
     st.info(
-        "Pelajari materi, kerjakan latihan, "
-        "dan lihat hasil pembelajaranmu."
+        "Gunakan ASAS KONTINUITAS LMS untuk mempelajari materi, "
+        "mengerjakan latihan, dan melihat hasil belajar."
     )
 
+# MATERI
 elif menu == "Materi":
     st.title("Materi Pembelajaran")
 
@@ -77,20 +83,23 @@ elif menu == "Materi":
     }
 
     pilihan = st.selectbox(
-        "Pilih materi",
+        "Pilih materi fisika",
         list(materi.keys())
     )
 
     st.subheader(pilihan)
     st.write(materi[pilihan])
 
-elif menu == "Video":
+# VIDEO
+elif menu == "Video Pembelajaran":
     st.title("Video Pembelajaran")
-    link = st.text_input("Masukkan link video YouTube")
+
+    link = st.text_input("Masukkan tautan video YouTube")
 
     if link:
         st.video(link)
 
+# LATIHAN SOAL
 elif menu == "Latihan Soal":
     st.title("Latihan Soal Fisika")
 
@@ -116,11 +125,13 @@ elif menu == "Latihan Soal":
 
     for i, s in enumerate(soal):
         st.write(f"**Soal {i+1}. {s['pertanyaan']}**")
+
         pilih = st.radio(
             "Pilih jawaban:",
             s["opsi"],
             key=f"soal_{i}"
         )
+
         jawaban.append(pilih)
 
     if st.button("Periksa Jawaban"):
@@ -129,22 +140,25 @@ elif menu == "Latihan Soal":
         for i, s in enumerate(soal):
             if jawaban[i] == s["jawaban"]:
                 benar += 1
-                st.success(f"Soal {i+1}: Benar")
+                st.success(f"Soal {i+1}: Jawaban benar!")
             else:
                 st.error(
-                    f"Soal {i+1}: Belum tepat. "
+                    f"Soal {i+1}: Jawaban belum tepat. "
                     f"Jawaban benar: {s['jawaban']}"
                 )
 
         skor = benar / len(soal) * 100
         st.session_state.nilai.append(skor)
+
         st.metric("Nilai Akhir", f"{skor:.0f}")
 
+# TUGAS
 elif menu == "Tugas":
     st.title("Pengumpulan Tugas")
 
     nama = st.text_input("Nama siswa")
     judul = st.text_input("Judul tugas")
+
     file = st.file_uploader(
         "Unggah tugas",
         type=["pdf", "docx", "jpg", "png"]
@@ -152,12 +166,13 @@ elif menu == "Tugas":
 
     if st.button("Kumpulkan Tugas"):
         if nama and judul and file:
-            st.success("Data tugas siap dikumpulkan.")
+            st.success("File tugas berhasil dipilih.")
         else:
             st.warning("Lengkapi semua data terlebih dahulu.")
 
+# NILAI
 elif menu == "Nilai":
-    st.title("Rekap Nilai")
+    st.title("Rekap Nilai Siswa")
 
     if st.session_state.nilai:
         df = pd.DataFrame({
@@ -166,14 +181,19 @@ elif menu == "Nilai":
             ),
             "Nilai": st.session_state.nilai
         })
+
         st.dataframe(df, use_container_width=True)
     else:
         st.info("Belum ada nilai latihan.")
 
+# TENTANG
 elif menu == "Tentang":
     st.title("Tentang LMS Fisika")
-    st.write(
-        "LMS Fisika merupakan platform pembelajaran "
-        "digital untuk mendukung kegiatan belajar fisika."
-    )
+
+    st.write("""
+    LMS Fisika merupakan platform pembelajaran digital
+    yang dirancang untuk membantu guru dan peserta didik
+    dalam kegiatan pembelajaran fisika.
+    """)
+
     st.write("Dikembangkan menggunakan Python dan Streamlit.")
